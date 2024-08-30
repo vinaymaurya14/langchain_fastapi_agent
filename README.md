@@ -8,7 +8,7 @@ This project is an AI-powered application built using FastAPI and Gradio, design
 2. [Features](#features)
 3. [Architecture](#architecture)
 4. [Setup Instructions](#setup-instructions)
-5. [How to Run the Application on Hugging Face Spaces](#how-to-run-the-application)
+5. [How to Run the Application on Hugging Face Spaces](#how-to-run-the-application-on-hugging-face-spaces)
 6. [Testing the Application](#testing-the-application)
 7. [Project Structure](#project-structure)
 
