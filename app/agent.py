@@ -28,6 +28,10 @@ prompt_template = PromptTemplate(
         Classification: [Category]
         Response: [Your response here]
 
+        Make sure the response follows this format:
+        - End the email with "Best regards," on a new line.
+        - Place "[Your Name]" on the line directly below "Best regards,".
+
         Do not include any special characters like newline (`\n`), quotes, or unnecessary escape characters.
         """
 )
@@ -40,11 +44,31 @@ def classify_and_respond(email_content: str) -> str:
     Classifies the email content and drafts a response.
     """
     try:
-        # Ensure that the result is a string
+        # Invoke the chain to get the result
         result = chain.invoke({"email_content": email_content})
- 
-        if isinstance(result, dict):  # If result is a dictionary, extract a string value
-            result = result.get('output', str(result))
-        return str(result)
+
+        # Extract content from AIMessage or result dictionary
+        result_content = result.content if hasattr(result, 'content') else result.get('output', str(result))
+
+        # Clean up the result string
+        cleaned_result = result_content.replace('\\n', ' ').strip()
+
+        # Split and format the response
+        if 'Classification:' in cleaned_result and 'Response:' in cleaned_result:
+            parts = cleaned_result.split('Response:')
+            classification = parts[0].replace('Classification:', '').strip()
+            response_text = parts[1].strip()
+
+            # Ensure proper email signature formatting
+            if "Best regards," in response_text:
+                response_parts = response_text.split("Best regards,")
+                if len(response_parts) == 2:
+                    response_text = response_parts[0].strip() + "\n\nBest regards,\n[Your Name]"
+
+            # Return formatted output
+            return f"Classification: {classification}\n\nResponse:\n{response_text}"
+        else:
+            return "Error: Model output does not contain expected sections."
+
     except Exception as e:
         raise ValueError(f"Error in classification and response: {str(e)}")
